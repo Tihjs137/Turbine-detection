@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/thijs/cmake/Turbine-detection/detection.h
+/home/nvidia/repos/Turbine-detection/detection.h
 opencv2/core.hpp
 -
 opencv2/videoio.hpp
@@ -22,7 +22,7 @@ iostream
 stdio.h
 -
 
-/home/thijs/cmake/Turbine-detection/main.cpp
+/home/nvidia/repos/Turbine-detection/main.cpp
 opencv2/core.hpp
 -
 opencv2/videoio.hpp
@@ -36,5 +36,5 @@ iostream
 stdio.h
 -
 detection.h
-/home/thijs/cmake/Turbine-detection/detection.h
+/home/nvidia/repos/Turbine-detection/detection.h
 
