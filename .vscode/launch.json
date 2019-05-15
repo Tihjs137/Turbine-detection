@@ -3,7 +3,7 @@
     "configurations": [
 
         {
-            "name": "Debug",
+            "name": "Debug using camera",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/build/main",
@@ -12,7 +12,7 @@
         },
 
         {
-            "name": "Debug image",
+            "name": "Debug using image (turbine.jpg)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/build/main",

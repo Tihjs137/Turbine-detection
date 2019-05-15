@@ -1,8 +1,9 @@
 /**
-  @file videocapture_basic.cpp
-  @brief A very basic sample for using VideoCapture and VideoWriter
-  @author PkLab.net
-  @date Aug 24, 2016
+  @file   main.cpp
+  @brief  Turbine detection
+  @author Thijs de Jong
+  @email  thijsdejong21@gmail.com
+  @date   14th of May, 2019
 */
 
 #include <opencv2/core.hpp>
@@ -35,7 +36,7 @@ int main(int argc, char** argv)
         // cap.open(0);
         // OR advance usage: select any API backend
 
-        int deviceID = 0;             // 0 = open default camera
+        int deviceID = 1;             // 0 = open default camera
         int apiID = cv::CAP_ANY;      // 0 = autodetect default API
 
         // open selected camera using selected API
@@ -49,7 +50,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        cout << "Using image: " << argv[1] << "\n";
+        cout << "Using image: " << argv[1] << "n";
         video = false;
         frame = imread(argv[1], CV_LOAD_IMAGE_COLOR);   // Read the file
 
@@ -144,6 +145,10 @@ int main(int argc, char** argv)
 
         Mat BW4 = frame;
         vector<Vec4i> lines;
+        int Xmax = frame.size[0]/2;
+        int Xmin = frame.size[0]/2;
+        int Ymax = frame.size[1]/2;
+        int Ymin = frame.size[1]/2;
 
         Rect boundingBox;
 
@@ -154,26 +159,65 @@ int main(int argc, char** argv)
             line( BW4, Point(lines[i][0], lines[i][1]),
                 Point(lines[i][2], lines[i][3]), Scalar(0,0,255), 3, 8 );
             
-            boundingBox.width = 200; boundingBox.height=200;
+            
 
-            for(int j = 0; j != 2; j++)
+            //Create bounding box
+            if (Xmax < lines[i][0] || Xmax < lines[i][2] )
             {
-                if(boundingBox.x < lines[i][j] )
-                { 
-                    boundingBox.x = lines[i][j]; 
+                if( lines[i][0] > lines[i][2])
+                {
+                    Xmax = lines[i][0];
                 }
-                if(boundingBox.y < lines[i][j+1] )
-                { 
-                    boundingBox.y = lines[i][j+1] -boundingBox.height ; 
+                else
+                {
+                    Xmax = lines[i][2];
                 }
-
+            }
+            if (Xmin > lines[i][0] || Xmin > lines[i][2] )
+            {
+                if( lines[i][0] < lines[i][2])
+                {
+                    Xmin = lines[i][0];
+                }
+                else
+                {
+                    Xmin = lines[i][2];
+                }
+            }
+            if (Ymax < lines[i][1] || Ymax < lines[i][3] )
+            {
+                if( lines[i][1] > lines[i][3])
+                {
+                    Ymax = lines[i][1];
+                }
+                else
+                {
+                    Ymax = lines[i][3];
+                }
+            }
+            if (Ymin > lines[i][1] || Ymin > lines[i][3] )
+            {
+                if( lines[i][1] < lines[i][3])
+                {
+                    Ymin = lines[i][1];
+                }
+                else
+                {
+                    Ymin = lines[i][3];
+                }
             }
             
+            boundingBox.x       = Xmin;
+            boundingBox.y       = Ymin;
+            boundingBox.width   = Xmax - Xmin; 
+            boundingBox.height  = Ymax - Ymin;
             
 
 
-            cout << "BW4 \t Line: " << i << "\t P1_x, P1_y: (" << lines[i][0] << "," << lines[i][1] << ") \t P2_x, P2_y: " << lines[i][3] << "," << lines[i][4]  << "\n";
+            cout << "BW4 \t Line: " << i << "\t P1_x, P1_y: (" << lines[i][0] << "," << lines[i][1] << ") \t P2_x, P2_y: " << lines[i][2] << "," << lines[i][3]  << "\n";
         }
+
+        cout << "BW4 \t box: " << 1 << "\t Xmin, Xmax: (" << Xmin << "," << Xmax << ") \t Ymin,Ymax: (" << Ymin << "," << Ymax  << ")\n";
         rectangle(BW4, boundingBox, Scalar( 0, 255, 255 ));
         imshow("bw4: Hough lines", BW4);
         //Mat& img, Rect rec, const Scalar& color,
