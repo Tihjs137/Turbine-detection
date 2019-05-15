@@ -212,9 +212,11 @@ int main(int argc, char** argv)
             boundingBox.width   = Xmax - Xmin; 
             boundingBox.height  = Ymax - Ymin;
             
+            float  slope = atan( (float)( (int)lines[i][3] - (int)lines[i][1]) / (float)((int)lines[i][2] - (int)lines[i][0]) ) * (180 / 3.1415);
 
 
-            cout << "BW4 \t Line: " << i << "\t P1_x, P1_y: (" << lines[i][0] << "," << lines[i][1] << ") \t P2_x, P2_y: " << lines[i][2] << "," << lines[i][3]  << "\n";
+            cout << "BW4 \t Line: " << i << "\t P1_x, P1_y: (" << lines[i][0] << "," << lines[i][1] << ") \t P2_x, P2_y: ";
+            cout << lines[i][2] << "," << lines[i][3]  << "\t Slope: " << slope << "\n";
         }
 
         cout << "BW4 \t box: " << 1 << "\t Xmin, Xmax: (" << Xmin << "," << Xmax << ") \t Ymin,Ymax: (" << Ymin << "," << Ymax  << ")\n";
