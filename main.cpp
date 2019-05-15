@@ -49,6 +49,7 @@ int main(int argc, char** argv)
     }
     else
     {
+        cout << "Using image: " << argv[1] << "\n";
         video = false;
         frame = imread(argv[1], CV_LOAD_IMAGE_COLOR);   // Read the file
 

@@ -1,12 +1,22 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceRoot}/build/main turbine.jpg",
+            "program": "${workspaceRoot}/build/main",
             
+            "cwd": "${workspaceRoot}"
+        },
+
+        {
+            "name": "Debug image",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/main",
+            "args": ["${workspaceRoot}/build/turbine.jpg"],
             "cwd": "${workspaceRoot}"
         }
     ]
