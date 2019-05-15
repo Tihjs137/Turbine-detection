@@ -46,11 +46,26 @@ class Detector
         createTrackbar( "bw4_Treshold",     "bw4: Hough lines", &bw4_Treshold,  255, NULL );
         createTrackbar( "bw4_srn",          "bw4: Hough lines", &bw4_srn,       60, NULL );
         createTrackbar( "bw4_stn",          "bw4: Hough lines", &bw4_stn,       30, NULL );
+
+        
+        window_capture_name = "Video Capture";
+        window_detection_name = "Object Detection";
+        low_H = 0, low_S = 0, low_V = 0;
+        high_H = max_value_H, high_S = max_value, high_V = max_value;
+
+        namedWindow(window_detection_name);
+        // Trackbars to set thresholds for HSV values
+        createTrackbar("Low H" , window_detection_name, &low_H , max_value_H, NULL);
+        createTrackbar("High H", window_detection_name, &high_H, max_value_H, NULL);
+        createTrackbar("Low S" , window_detection_name, &low_S , max_value  , NULL);
+        createTrackbar("High S", window_detection_name, &high_S, max_value  , NULL);
+        createTrackbar("Low V" , window_detection_name, &low_V , max_value  , NULL);
+        createTrackbar("High V", window_detection_name, &high_V, max_value  , NULL);
     };
 
     private: //Private variables
     
-
+    
     
     int  bw2_Treshold;    
     int  bw4_Rho     ;    
@@ -58,6 +73,12 @@ class Detector
     int  bw4_Treshold;  
     int  bw4_srn     ; 
     int  bw4_stn     ;
+    static const int max_value_H = 360/2;
+    static const int max_value = 255;
+    String window_capture_name;
+    String window_detection_name;
+    int low_H, low_S, low_V;
+    int high_H, high_S , high_V;
 
     private: //Private functions
 
@@ -76,28 +97,69 @@ class Detector
        cout << "Geekname is: " << name; 
     } 
 
-    void locate()
+    void locate(Mat frame)
     {   
         //C++: bool solvePnP(InputArray objectPoints, InputArray imagePoints, InputArray cameraMatrix, 
         //          InputArray distCoeffs, OutputArray rvec, OutputArray tvec, bool useExtrinsicGuess=false, int flags=ITERATIVE )¶
         
+        // show live and wait for a key with timeout long enough to show images
+        imshow("Live", frame);
+
+        // -------- gray scaling ----------
+
         
-        //Object points: Cirlce prefered set of points
-        std::vector<Point2f> vec;
-        // points or a circle
-        for( int i = 0; i < 30; i++ )
-            vec.push_back(Point2f((float)(100 + 30*cos(i*CV_PI*2/5)),
-                                (float)(100 - 30*sin(i*CV_PI*2/5))));
 
-        //Image points
 
-        //camera Matrix
+      
 
-        //dist Coeffs
+        Mat frame_HSV; Mat frame_threshold;
+        // Convert from BGR to HSV colorspace
+        cvtColor(frame, frame_HSV, COLOR_BGR2HSV);
+        // Detect the object based on HSV Range Values
+        inRange(frame_HSV, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), frame_threshold);
+        imshow("HSV",frame_HSV);
+        imshow(window_detection_name, frame_threshold);
 
-        //rvec
+        // Set up the detector with default parameters.
+        
+        
+        // Detect blobs.
+        std::vector<KeyPoint> keypoints;
+        
 
-        //tvec
+        // Setup SimpleBlobDetector parameters.
+        SimpleBlobDetector::Params params;
+        
+        // Change thresholds
+        params.minThreshold = 10;
+        params.maxThreshold = 200;
+        
+        // Filter by Area.
+        params.filterByArea = false;
+        params.minArea = 1500;
+        
+        // Filter by Circularity
+        params.filterByCircularity = true;
+        params.minCircularity = 0.8;
+        
+        // Filter by Convexity
+        params.filterByConvexity = false;
+        params.minConvexity = 0.87;
+        
+        // Filter by Inertia
+        params.filterByInertia = false;
+        params.minInertiaRatio = 0.01;
+        
+        cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params); 
+        detector->detect( frame_threshold, keypoints );
+
+        // Draw detected blobs as red circles.
+        // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures the size of the circle corresponds to the size of blob
+        Mat im_with_keypoints;
+        drawKeypoints( frame_threshold, keypoints, im_with_keypoints, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
+        
+        // Show blobs
+        imshow("keypoints", im_with_keypoints );
 
 
     }
