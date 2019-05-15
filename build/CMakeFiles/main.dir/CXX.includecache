@@ -23,6 +23,8 @@ iostream
 -
 stdio.h
 -
+opencv2/opencv.hpp
+-
 
 /home/thijs/Documents/Minor/Project/cmake/houghlines/main.cpp
 opencv2/core.hpp
