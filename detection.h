@@ -9,23 +9,14 @@
 using namespace std; 
 using namespace cv; 
 
+//====== Turbine detection class ========
+
+
+
 class Detector 
 { 
-    // Access specifier 
-    public: 
-  
-    // Data Members 
-    string name; 
-    //Parameters
-    
-    int  bw2_Treshold;    
-    int  bw4_Rho     ;    
-    int  bw4_Theta   ;   
-    int  bw4_Treshold;  
-    int  bw4_srn     ; 
-    int  bw4_stn     ;
-
-    Detector()
+    public:
+    Detector() //Initializer
     {
         bw2_Treshold    = 180;
         bw4_Rho         = 1;
@@ -46,12 +37,36 @@ class Detector
         createTrackbar( "bw4_stn",          "bw4: Hough lines", &bw4_stn,       30, NULL );
     };
 
-    // Member Functions() 
-    void printname() 
+    private: //Private variables
+    
+
+    
+    int  bw2_Treshold;    
+    int  bw4_Rho     ;    
+    int  bw4_Theta   ;   
+    int  bw4_Treshold;  
+    int  bw4_srn     ; 
+    int  bw4_stn     ;
+
+    private: //Private functions
+
+    
+
+    
+    public: //Public variables
+  
+    
+    string name; //dummy var
+
+    public: //Functions
+
+    void printname() //dummy function
     { 
        cout << "Geekname is: " << name; 
     } 
 
+
+    //Hello opencv, shows plain input
     void showVideo(Mat frame)
     {
             
@@ -59,13 +74,9 @@ class Detector
 
     }
 
+    //Turbine detector
     void detect(bool video, Mat frame)
     {
-        
-
-        
-            
-        
         // show live and wait for a key with timeout long enough to show images
         imshow("Live", frame);
 

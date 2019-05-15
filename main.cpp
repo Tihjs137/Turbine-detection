@@ -20,7 +20,7 @@ using namespace cv;
 
 
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
     Detector d;
     
@@ -30,6 +30,14 @@ int main(int argc, char** argv)
 
 
     if( argc == 1)
+    {
+        cout << "Error in syntax \nUsage: main source(path to image / video) (video source) \n";
+        return 0;
+    }
+    
+    string Parm = argv[1]; 
+
+    if(Parm == (char*)"video")
     {
         video = true;
         cout <<"Using video capture" << endl;
@@ -55,7 +63,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        cout << "Using image: " << argv[1] << "n";
+        cout << "Using image: " << Parm << "\n";
         video = false;
         frame = imread(argv[1], CV_LOAD_IMAGE_COLOR);   // Read the file
 
