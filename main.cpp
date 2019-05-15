@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
         
 
         //Run the detector
-        d.detectKeys(video, frame);
+        d.detect(video, frame);
         
 
 

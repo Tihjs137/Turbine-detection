@@ -12,13 +12,13 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
-#include <opencv2/xfeatures2d.hpp>
+//#include <opencv2/xfeatures2d.hpp>
 #include <iostream>
 #include <stdio.h>
 
 using namespace std; 
 using namespace cv;
-using namespace cv::xfeatures2d; 
+//using namespace cv::xfeatures2d; 
 
 //====== Turbine detection class ========
 
@@ -110,55 +110,19 @@ class Detector
 
     }
 
-    //Turbine detector using key points
-    void detectKeys(bool video, Mat frame)
-    {
-
-        // show live and wait for a key with timeout long enough to show images
-        imshow("Live", frame);
-
-        // -------- gray scaling ----------
-
-        Mat BW1;
-        cvtColor(frame, BW1, CV_BGR2GRAY);
-        imshow("bw1 grey", BW1);
-
-        // -------- Masking ----------
-        Mat BW2 = BW1 > bw2_Treshold;
     
-        imshow("bw2 mask", BW2);
-
-        // ---------Detecting keypoints ----
-
-        //-- Step 1: Detect the keypoints using SURF Detector
-        int minHessian = 400;
-        
-        Ptr<SURF> detector = SURF::create( minHessian );
-        
-        std::vector<KeyPoint> keypoints_1;
-        
-        detector->detect( BW2, keypoints_1 );
-        
-        //-- Draw keypoints
-        Mat img_keypoints_1;
-        drawKeypoints( BW2, keypoints_1, img_keypoints_1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
-        
-        //-- Show detected (drawn) keypoints
-        imshow("Keypoints 1", img_keypoints_1 );
-
-    }
 
     //Turbine detector
     void detect(bool video, Mat frame)
     {
         // show live and wait for a key with timeout long enough to show images
-        imshow("Live", frame);
+        //imshow("Live", frame);
 
         // -------- gray scaling ----------
 
         Mat BW1;
         cvtColor(frame, BW1, CV_BGR2GRAY);
-        imshow("bw1 grey", BW1);
+        //imshow("bw1 grey", BW1);
 
         // -------- Masking ----------
         Mat BW2 = BW1 > bw2_Treshold;
@@ -191,7 +155,7 @@ class Detector
 
         //cout << "iterations=" << iterations << endl;
         
-        imshow("bw3: skeleton", skel);
+        //imshow("bw3: skeleton", skel);
 
         //-------Hough lines----------//
         //C++: void HoughLines(InputArray image, OutputArray lines, double rho, double theta, int threshold, double srn=0, double stn=0 )
