@@ -100,8 +100,9 @@ int main(int argc, char* argv[])
         
 
         //Run the detector
-        d.detect(video, frame);
+        d.detectKeys(video, frame);
         
+
 
         //-------Wait key -----------
         if(!video)

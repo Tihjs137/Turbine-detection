@@ -1,13 +1,24 @@
+/**
+  @file   detection.h
+  @brief  Turbine detection
+  @author Thijs de Jong
+  @email  thijsdejong21@gmail.com
+  @date   15th of May, 2019
+*/
+
 #pragma once
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/features2d/features2d.hpp>
+#include <opencv2/xfeatures2d.hpp>
 #include <iostream>
 #include <stdio.h>
 
 using namespace std; 
-using namespace cv; 
+using namespace cv;
+using namespace cv::xfeatures2d; 
 
 //====== Turbine detection class ========
 
@@ -65,12 +76,75 @@ class Detector
        cout << "Geekname is: " << name; 
     } 
 
+    void locate()
+    {   
+        //C++: bool solvePnP(InputArray objectPoints, InputArray imagePoints, InputArray cameraMatrix, 
+        //          InputArray distCoeffs, OutputArray rvec, OutputArray tvec, bool useExtrinsicGuess=false, int flags=ITERATIVE )¶
+        
+        
+        //Object points: Cirlce prefered set of points
+        std::vector<Point2f> vec;
+        // points or a circle
+        for( int i = 0; i < 30; i++ )
+            vec.push_back(Point2f((float)(100 + 30*cos(i*CV_PI*2/5)),
+                                (float)(100 - 30*sin(i*CV_PI*2/5))));
+
+        //Image points
+
+        //camera Matrix
+
+        //dist Coeffs
+
+        //rvec
+
+        //tvec
+
+
+    }
 
     //Hello opencv, shows plain input
     void showVideo(Mat frame)
     {
             
         imshow("live",frame);
+
+    }
+
+    //Turbine detector using key points
+    void detectKeys(bool video, Mat frame)
+    {
+
+        // show live and wait for a key with timeout long enough to show images
+        imshow("Live", frame);
+
+        // -------- gray scaling ----------
+
+        Mat BW1;
+        cvtColor(frame, BW1, CV_BGR2GRAY);
+        imshow("bw1 grey", BW1);
+
+        // -------- Masking ----------
+        Mat BW2 = BW1 > bw2_Treshold;
+    
+        imshow("bw2 mask", BW2);
+
+        // ---------Detecting keypoints ----
+
+        //-- Step 1: Detect the keypoints using SURF Detector
+        int minHessian = 400;
+        
+        Ptr<SURF> detector = SURF::create( minHessian );
+        
+        std::vector<KeyPoint> keypoints_1;
+        
+        detector->detect( BW2, keypoints_1 );
+        
+        //-- Draw keypoints
+        Mat img_keypoints_1;
+        drawKeypoints( BW2, keypoints_1, img_keypoints_1, Scalar::all(-1), DrawMatchesFlags::DEFAULT );
+        
+        //-- Show detected (drawn) keypoints
+        imshow("Keypoints 1", img_keypoints_1 );
 
     }
 
