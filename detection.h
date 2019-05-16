@@ -6,7 +6,7 @@
   @date     16th of May, 2019
 */
 
-//Prevent over definition :o
+//Prevent over definition, remove this and your compiler will crash/freeze :o
 #pragma once
 
 //Library heaaders
@@ -40,12 +40,9 @@ using namespace cv::xfeatures2d;
     void  locate(Mat frame)
         PnP Magic, WIP
 
-    void  detect(bool video, Mat frame)
+    void  detect(Mat frame)
         Uses the video selector and the input frame to detect houghlines.
         input:
-            video:
-                true:   Continues refresh, sliders are on
-                false:  Script runs one time, sliders are visable but disabled (bug);
             frame: 
                 CV::Mat format 
 
@@ -57,9 +54,10 @@ using namespace cv::xfeatures2d;
 */
 
 class Detector 
-{ 
+{  
+    //=================== Initializer ===================
     public:
-    Detector() //Initializer
+    Detector()
     {
         bw2_Treshold    = 180;
         bw4_Rho         = 1;
@@ -95,16 +93,19 @@ class Detector
         createTrackbar("High V", window_detection_name, &high_V, max_value  , NULL);
     };
 
-    private: //Private variables
+    //================ Private variables ================
+    private: 
     
     
-    
+    //Used in detect()
     int  bw2_Treshold;    
     int  bw4_Rho     ;    
     int  bw4_Theta   ;   
     int  bw4_Treshold;  
     int  bw4_srn     ; 
     int  bw4_stn     ;
+
+    //Used in locate()
     static const int max_value_H = 360/2;
     static const int max_value = 255;
     String window_capture_name;
@@ -112,23 +113,27 @@ class Detector
     int low_H, low_S, low_V;
     int high_H, high_S , high_V;
 
-    private: //Private functions
+    //================ Private functions ===============
+    private: 
 
     
 
-    
-    public: //Public variables
+    //================ Public variables ================
+    public: 
   
-    
-    string name; //dummy var
+    //dummy var
+    string name; 
 
-    public: //Functions
+    //================ Public functions ================
+    public: 
 
     void printname() //dummy function
     { 
        cout << "Geekname is: " << name; 
     } 
 
+    //[WIP - Unstable]
+    //PnP magic
     void locate(Mat frame)
     {   
         //C++: bool solvePnP(InputArray objectPoints, InputArray imagePoints, InputArray cameraMatrix, 
@@ -174,7 +179,7 @@ class Detector
         params.minArea = 1500;
         
         // Filter by Circularity
-        params.filterByCircularity = true;
+        params.filterByCircularity = false;
         params.minCircularity = 0.8;
         
         // Filter by Convexity
@@ -213,77 +218,74 @@ class Detector
         //PnP magic ...
         std::vector<cv::Point2d> image_points;
 
-        if(keypoints.size() == 4 || true)
+        if(keypoints.size() == 5)
         {
             
-            image_points.push_back( cv::Point2d(154, 213) );    // Nose tip
-            image_points.push_back( cv::Point2d(292, 235) );    // Chin
-            image_points.push_back( cv::Point2d(422, 133) );     // Left eye left corner
-            image_points.push_back( cv::Point2d(290, 66) ); 
-            image_points.push_back( cv::Point2d(293, 400) ); 
+            // image_points.push_back( cv::Point2d(257, 394) );    
+            // image_points.push_back( cv::Point2d(371, 295) );    
+            // image_points.push_back( cv::Point2d(268, 288) );     
+            // image_points.push_back( cv::Point2d(165, 279) ); 
+            // image_points.push_back( cv::Point2d(278, 186) ); 
 
-            // image_points.push_back( cv::Point2d(keypoints[0].pt.x, keypoints[0].pt.y) );    // Nose tip
-            // image_points.push_back( cv::Point2d(keypoints[1].pt.x, keypoints[1].pt.y) );    // Chin
-            // image_points.push_back( cv::Point2d(keypoints[2].pt.x, keypoints[2].pt.y) );     // Left eye left corner
-            // image_points.push_back( cv::Point2d(keypoints[3].pt.x, keypoints[3].pt.y) ); 
-            // image_points.push_back( cv::Point2d(keypoints[4].pt.x, keypoints[4].pt.y) ); 
-            // 2D image points. If you change the image, you need to change vector
-           // Right eye right corner
-        //image_points.push_back( cv::Point2d(345, 465) );    // Left Mouth corner
-        //image_points.push_back( cv::Point2d(453, 469) );    // Right mouth corner
+            //Fill image_points using blob detection
+
+            image_points.push_back( cv::Point2d(keypoints[0].pt.x, keypoints[0].pt.y) );    // Nose tip
+            image_points.push_back( cv::Point2d(keypoints[1].pt.x, keypoints[1].pt.y) );    // Chin
+            image_points.push_back( cv::Point2d(keypoints[2].pt.x, keypoints[2].pt.y) );     // Left eye left corner
+            image_points.push_back( cv::Point2d(keypoints[3].pt.x, keypoints[3].pt.y) ); 
+            image_points.push_back( cv::Point2d(keypoints[4].pt.x, keypoints[4].pt.y) ); 
         
-        // 3D model points.
-        std::vector<cv::Point3d> model_points;
-        model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center           
-        model_points.push_back(cv::Point3d(  0.0f,-40.0f, 0.0f));  //Bottom         
-        model_points.push_back(cv::Point3d(-20.0f,-10.0f, 0.0f));  //left bottom    
-        model_points.push_back(cv::Point3d(-20.0f, 20.0f, 0.0f));  //left top
-        model_points.push_back(cv::Point3d( 25.0f,  0.0f, 0.0f));  //right      
-        //model_points.push_back(cv::Point3d(-150.0f, -150.0f, -125.0f));      // Left Mouth corner
-        //model_points.push_back(cv::Point3d(150.0f, -150.0f, -125.0f));       // Right mouth corner
+            // 3D model points.
+            std::vector<cv::Point3d> model_points;
+            model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center           
+            model_points.push_back(cv::Point3d(  25.0f,25.0f, 0.0f));  //right top         
+            model_points.push_back(cv::Point3d(-25.0f,-25.0f, 0.0f));  //left bottom    
+            model_points.push_back(cv::Point3d(-25.0f, 25.0f, 0.0f));  //left top
+            model_points.push_back(cv::Point3d( 25.0f,-25.0f, 0.0f));  //right bottom     
+            
+            
+            // Camera internals
+            double focal_length = frame.cols; // Approximate focal length.
+            Point2d center = cv::Point2d(frame.cols/2,frame.rows/2);
+            cv::Mat camera_matrix = (cv::Mat_<double>(3,3) << focal_length, 0, center.x, 0 , focal_length, center.y, 0, 0, 1);
+            cv::Mat dist_coeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type); // Assuming no lens distortion
+            
+            cout << "Camera Matrix " << endl << camera_matrix << endl ;
+            // Output rotation and translation
+            cv::Mat rotation_vector; // Rotation in axis-angle form
+            cv::Mat translation_vector;
+            
+            // Solve for pose
+            cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
         
-        // Camera internals
-        double focal_length = frame.cols; // Approximate focal length.
-        Point2d center = cv::Point2d(frame.cols/2,frame.rows/2);
-        cv::Mat camera_matrix = (cv::Mat_<double>(3,3) << focal_length, 0, center.x, 0 , focal_length, center.y, 0, 0, 1);
-        cv::Mat dist_coeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type); // Assuming no lens distortion
-        
-        cout << "Camera Matrix " << endl << camera_matrix << endl ;
-        // Output rotation and translation
-        cv::Mat rotation_vector; // Rotation in axis-angle form
-        cv::Mat translation_vector;
-        
-        // Solve for pose
-        cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
-    
-        
-        // Project a axis onto the image plane.
-        
-        
-        vector<Point3d> nose_end_point3D;
-        vector<Point2d> nose_end_point2D;
-        nose_end_point3D.push_back(Point3d(100,0,0));
-        nose_end_point3D.push_back(Point3d(0,100,0));
-        nose_end_point3D.push_back(Point3d(0,0,100));
-        
-        projectPoints(nose_end_point3D, rotation_vector, translation_vector, camera_matrix, dist_coeffs, nose_end_point2D);
-        
-        
-        for(int i=0; i < image_points.size(); i++)
-        {
-            circle(frame, image_points[i], 3, Scalar(0,0,255), -1);
-        }
-        
-        cv::line(frame,image_points[0], nose_end_point2D[0], cv::Scalar(255,0,0), 2);
-        cv::line(frame,image_points[0], nose_end_point2D[1], cv::Scalar(0,255,0), 2);
-        cv::line(frame,image_points[0], nose_end_point2D[2], cv::Scalar(0,0,255), 2);
-        
-        cout << "Rotation Vector " << endl << rotation_vector << endl;
-        cout << "Translation Vector" << endl << translation_vector << endl;
-        
-        cout <<  nose_end_point2D << endl;
-        
-        // Display image.
+            
+            // Project a axis onto the image plane.
+            
+            
+            vector<Point3d> nose_end_point3D;
+            vector<Point2d> nose_end_point2D;
+            nose_end_point3D.push_back(Point3d(100,0,0));
+            nose_end_point3D.push_back(Point3d(0,100,0));
+            nose_end_point3D.push_back(Point3d(0,0,100));
+            
+            projectPoints(nose_end_point3D, rotation_vector, translation_vector, camera_matrix, dist_coeffs, nose_end_point2D);
+            
+            
+            for(int i=0; i < image_points.size(); i++)
+            {
+                circle(frame, image_points[i], 3, Scalar(0,0,255), -1);
+            }
+            
+            cv::line(frame,image_points[0], nose_end_point2D[0], cv::Scalar(255,0,0), 2);
+            cv::line(frame,image_points[0], nose_end_point2D[1], cv::Scalar(0,255,0), 2);
+            cv::line(frame,image_points[0], nose_end_point2D[2], cv::Scalar(0,0,255), 2);
+            
+            cout << "Rotation Vector " << endl << rotation_vector << endl;
+            cout << "Translation Vector" << endl << translation_vector << endl;
+            
+            cout <<  nose_end_point2D << endl;
+            
+            // Display image.
         
         }
 
@@ -291,7 +293,8 @@ class Detector
 
     }
 
-    //Hello opencv, shows plain input
+    //[100% - Finished]
+    //Hello opencv, shows plain input 
     void showVideo(Mat frame)
     {
             
@@ -299,6 +302,7 @@ class Detector
 
     }
 
+    //[30% - Unstable]
     //Turbine detector using key points
     void detectKeys(bool video, Mat frame)
     {
@@ -337,8 +341,9 @@ class Detector
 
     }
 
-    //Turbine detector
-    void detect(bool video, Mat frame)
+    //[30% - Uncalibrated - incomplete]
+    //Turbine detector using houghlines
+    void detect(Mat frame)
     {
         // show live and wait for a key with timeout long enough to show images
         imshow("Live", frame);

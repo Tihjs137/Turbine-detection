@@ -119,10 +119,10 @@ int main(int argc, char* argv[])
         
 
         //Run the detector (detect houghlinees)
-        d.detect(video, frame);
+        //d.detect(frame);
         
         //Run the PnP function
-        //d.locate(frame);
+        d.locate(frame);
 
         //Run keypoint finder
         //d.detectKeys(video,frame);
