@@ -19,6 +19,9 @@
 #include <iostream>
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
+#include <opencv2/viz.hpp>
+#include <opencv2/calib3d.hpp>
+
 
 //Namespace decl.
 using namespace std; 
@@ -80,8 +83,8 @@ class Detector
         
         window_capture_name = "Video Capture";
         window_detection_name = "Object Detection";
-        low_H = 0, low_S = 0, low_V = 0;
-        high_H = max_value_H, high_S = max_value, high_V = max_value;
+        low_H = 107, low_S = 54, low_V = 105;
+        high_H = 154, high_S = 133, high_V = 147;
 
         namedWindow(window_detection_name);
         // Trackbars to set thresholds for HSV values
@@ -97,6 +100,9 @@ class Detector
     private: 
     
     
+
+        
+
     //Used in detect()
     int  bw2_Treshold;    
     int  bw4_Rho     ;    
@@ -112,6 +118,7 @@ class Detector
     String window_detection_name;
     int low_H, low_S, low_V;
     int high_H, high_S , high_V;
+    
 
     //================ Private functions ===============
     private: 
@@ -120,7 +127,11 @@ class Detector
 
     //================ Public variables ================
     public: 
-  
+    
+    // Output rotation and translation
+    cv::Mat rotation_vector; // Rotation in axis-angle form
+    cv::Mat translation_vector;
+
     //dummy var
     string name; 
 
@@ -251,9 +262,7 @@ class Detector
             cv::Mat dist_coeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type); // Assuming no lens distortion
             
             cout << "Camera Matrix " << endl << camera_matrix << endl ;
-            // Output rotation and translation
-            cv::Mat rotation_vector; // Rotation in axis-angle form
-            cv::Mat translation_vector;
+            
             
             // Solve for pose
             cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
@@ -280,16 +289,24 @@ class Detector
             cv::line(frame,image_points[0], nose_end_point2D[1], cv::Scalar(0,255,0), 2);
             cv::line(frame,image_points[0], nose_end_point2D[2], cv::Scalar(0,0,255), 2);
             
+            // int str = (rotation_vector.at<float>(0));
+            // stringstream iss;
+            // iss << str;
+            // putText(frame, iss.str(), Point2d(10,20), 1, 2, Scalar(255,0,0), 2);
             cout << "Rotation Vector " << endl << rotation_vector << endl;
             cout << "Translation Vector" << endl << translation_vector << endl;
             
             cout <<  nose_end_point2D << endl;
             
-            // Display image.
-        
+            
+            
+            
         }
-
+        
+        // Display image.
         cv::imshow("Output", frame);
+
+        
 
     }
 

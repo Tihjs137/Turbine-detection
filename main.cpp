@@ -99,6 +99,10 @@ int main(int argc, char* argv[])
     cout << "Start grabbing" << endl
         << "Press any key to terminate" << endl;
     
+   
+    
+    /* Rotation using rodrigues */
+    
 
     // ======= Main Vision Loop =======
     for(;;)
@@ -126,6 +130,10 @@ int main(int argc, char* argv[])
 
         //Run keypoint finder
         //d.detectKeys(video,frame);
+
+
+        
+
 
         //-------Wait key -----------
         if(!video)

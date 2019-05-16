@@ -25,6 +25,10 @@ stdio.h
 -
 opencv2/opencv.hpp
 -
+opencv2/viz.hpp
+-
+opencv2/calib3d.hpp
+-
 
 /home/thijs/Documents/Minor/Project/cmake/houghlines/main.cpp
 opencv2/core.hpp
