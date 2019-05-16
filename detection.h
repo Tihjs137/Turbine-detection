@@ -1,12 +1,15 @@
 /**
-  @file   detection.h
-  @brief  Turbine detection
-  @author Thijs de Jong
-  @email  thijsdejong21@gmail.com
-  @date   15th of May, 2019
+  @file     detection.h
+  @project  Turbine detection
+  @author   Thijs de Jong
+  @email    thijsdejong21@gmail.com
+  @date     16th of May, 2019
 */
 
+//Prevent over definition :o
 #pragma once
+
+//Library heaaders
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
@@ -17,13 +20,41 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 
+//Namespace decl.
 using namespace std; 
 using namespace cv;
 using namespace cv::xfeatures2d; 
 
-//====== Turbine detection class ========
 
 
+/*
+  @Class: Detector
+
+  @functions (public):
+    Detector()
+        Initializes the sliders and its windows
+
+    void  swowVideo(Mat frame)
+        Debug function that displays the given "frame" in a window created within its scope
+
+    void  locate(Mat frame)
+        PnP Magic, WIP
+
+    void  detect(bool video, Mat frame)
+        Uses the video selector and the input frame to detect houghlines.
+        input:
+            video:
+                true:   Continues refresh, sliders are on
+                false:  Script runs one time, sliders are visable but disabled (bug);
+            frame: 
+                CV::Mat format 
+
+        outputs:
+            It spawns named windows.
+
+    void  detectKeys(bool video, Mat frame)
+
+*/
 
 class Detector 
 { 
@@ -118,8 +149,11 @@ class Detector
         cvtColor(frame, frame_HSV, COLOR_BGR2HSV);
         // Detect the object based on HSV Range Values
         inRange(frame_HSV, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), frame_threshold);
+        
         imshow("HSV",frame_HSV);
         imshow(window_detection_name, frame_threshold);
+
+        // -------- Blob detection ----------
 
         // Set up the detector with default parameters.
         
@@ -151,21 +185,22 @@ class Detector
         params.filterByInertia = false;
         params.minInertiaRatio = 0.01;
         
+        //Invert the image
         Mat beforeBlob = frame_threshold < 200;
 
+        //Run the blob detector
         cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params); 
         detector->detect( beforeBlob, keypoints );
 
         // Draw detected blobs as red circles.
         // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures the size of the circle corresponds to the size of blob
-        
-        
         Mat im_with_keypoints;
         drawKeypoints( beforeBlob, keypoints, im_with_keypoints, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
         
         // Show blobs
         imshow("keypoints", im_with_keypoints );
 
+        //Debug print
         for( int i = 0 ; i < keypoints.size(); i++)
         {
             cout << "Blob " << i << " : " << keypoints[i].pt << "\t";
@@ -174,6 +209,8 @@ class Detector
         
         cout << "\n\n";
 
+
+        //PnP magic ...
         std::vector<cv::Point2d> image_points;
 
         if(keypoints.size() == 4 || true)
@@ -220,8 +257,8 @@ class Detector
         cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
     
         
-        // Project a 3D point (0, 0, 1000.0) onto the image plane.
-        // We use this to draw a line sticking out of the nose
+        // Project a axis onto the image plane.
+        
         
         vector<Point3d> nose_end_point3D;
         vector<Point2d> nose_end_point2D;

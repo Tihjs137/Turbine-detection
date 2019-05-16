@@ -1,19 +1,25 @@
 /**
-  @file   main.cpp
-  @brief  Turbine detection
-  @author Thijs de Jong
-  @email  thijsdejong21@gmail.com
-  @date   14th of May, 2019
+  @file     main.cpp
+  @project  Turbine detection
+  @author   Thijs de Jong
+  @email    thijsdejong21@gmail.com
+  @date     16th of May, 2019
 */
-#pragma once
+
+
+
+//Library headers
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <iostream>
 #include <stdio.h>
+
+//Class headers
 #include "detection.h"
 
+//Namespace decl.
 using namespace std; 
 using namespace cv; 
 
@@ -22,23 +28,32 @@ using namespace cv;
 
 int main(int argc, char* argv[])
 {
+    //Init the Detector object
     Detector d;
     
+    //Mat to store the frame(s)
     Mat frame;
+
+    //Video source object
     VideoCapture cap;
+    
+    //Are we using video or an image?
     bool video;
 
-
+    //When no arguments are given
     if( argc == 1)
     {
         cout << "Error in syntax \nUsage: main source(path to image / video) (video source) \n";
         return 0;
     }
     
+    //Store the argument in "Parm"
     string Parm = argv[1]; 
 
+    //When Parm == video; init video capture
     if(Parm == (char*)"video")
     {
+        //Set the video selector
         video = true;
         cout <<"Using video capture" << endl;
         //--- INITIALIZE VIDEOCAPTURE
@@ -63,11 +78,17 @@ int main(int argc, char* argv[])
     }
     else
     {
+        //Debug feature, confirm the image name
         cout << "Using image: " << Parm << "\n";
+        
+        //Set image selector
         video = false;
-        frame = imread(argv[1], CV_LOAD_IMAGE_COLOR);   // Read the file
 
-        if(! frame.data )                              // Check for invalid input
+        // Read the file
+        frame = imread(argv[1], CV_LOAD_IMAGE_COLOR);   
+
+        // Check for invalid input
+        if(! frame.data )                              
         {
             cout <<  "Could not open or find the image" << std::endl ;
             return -1;
@@ -82,7 +103,9 @@ int main(int argc, char* argv[])
     // ======= Main Vision Loop =======
     for(;;)
     {
-        if(video) //1 frame or frame feed?
+        //Video of image? 
+        //Video will be loaded here. unless image is selected, then this statement will be ignored
+        if(video) 
         {
             // wait for a new frame from camera and store it into 'frame'
             cap.read(frame);
@@ -94,15 +117,15 @@ int main(int argc, char* argv[])
             }
         }
         
-        
-        
-        
-        
 
-        //Run the detector
-        //d.detect(video, frame);
+        //Run the detector (detect houghlinees)
+        d.detect(video, frame);
         
-        d.locate(frame);
+        //Run the PnP function
+        //d.locate(frame);
+
+        //Run keypoint finder
+        //d.detectKeys(video,frame);
 
         //-------Wait key -----------
         if(!video)
