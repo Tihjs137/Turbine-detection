@@ -17,11 +17,13 @@
 using namespace std; 
 using namespace cv; 
 
-
+const string version =" 0.1";
 
 
 int main(int argc, char* argv[])
 {
+    cout << "using version: " << version << endl;
+
     Detector d;
     
     Mat frame;
@@ -48,7 +50,7 @@ int main(int argc, char* argv[])
         // cap.open(0);
         // OR advance usage: select any API backend
 
-        int deviceID = 1;             // 0 = open default camera
+        int deviceID = 2;             // 0 = open default camera
         int apiID = cv::CAP_ANY;      // 0 = autodetect default API
 
         // open selected camera using selected API
@@ -100,8 +102,11 @@ int main(int argc, char* argv[])
         
 
         //Run the detector
-        d.detect(video, frame);
+        //d.detect(video, frame);
         
+
+	//hello camera
+	d.showVideo(frame);
 
 
         //-------Wait key -----------

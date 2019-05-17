@@ -21,6 +21,10 @@ iostream
 -
 stdio.h
 -
+opencv2/opencv.hpp
+-
+opencv2/calib3d.hpp
+-
 
 /home/nvidia/repos/Turbine-detection/main.cpp
 opencv2/core.hpp

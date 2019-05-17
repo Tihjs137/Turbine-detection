@@ -16,6 +16,11 @@
 #include <iostream>
 #include <stdio.h>
 
+#include <opencv2/opencv.hpp>
+//#include <opencv2/viz.hpp>
+#include <opencv2/calib3d.hpp>
+
+
 using namespace std; 
 using namespace cv;
 //using namespace cv::xfeatures2d; 
