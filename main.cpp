@@ -40,6 +40,9 @@ int main(int argc, char* argv[])
 
     //Video source object
     VideoCapture cap;
+
+    //cap.set(CV_CAP_PROP_FRAME_WIDTH , 480);
+    //cap.set(CV_CAP_PROP_FRAME_HEIGHT ,640 );
     
     //Are we using video or an image?
     bool video;
@@ -59,7 +62,7 @@ int main(int argc, char* argv[])
     {
         //Set the video selector
         video = true;
-        cout <<"Using video capture" << endl;
+        //cout <<"Using video capture" << endl;
         //--- INITIALIZE VIDEOCAPTURE
         
 
@@ -68,12 +71,12 @@ int main(int argc, char* argv[])
         // OR advance usage: select any API backend
 
         
-        int deviceID = 1;             // 0 = open default camera
+        int deviceID = 2;             // 0 = open default camera
 
         int apiID = cv::CAP_ANY;      // 0 = autodetect default API
 
         // open selected camera using selected API
-        cap.open(deviceID + apiID);
+        cap.open(deviceID); //+ apiID);
 
         // check if we succeeded
         if (!cap.isOpened()) 
@@ -109,6 +112,8 @@ int main(int argc, char* argv[])
     // ======= Main Vision Loop =======
     for(;;)
     {
+
+	cout << "video boolean: " << video << endl;
         //Video of image? 
         //Video will be loaded here. unless image is selected, then this statement will be ignored
         if(video) 
@@ -124,18 +129,18 @@ int main(int argc, char* argv[])
         }
         
 
-
+	//imshow("live", frame);
        
         //Run the detector (detect houghlinees)
         //d.detect(frame);
 
         
         //Run the PnP function
-        //d.locate(frame);
+        d.locate(frame);
 
 
 	//hello camera
-	d.showVideo(frame);
+	//d.showVideo(frame);
 
         //Run keypoint finder
         //d.detectKeys(video,frame);
