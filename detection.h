@@ -1,12 +1,15 @@
 /**
-  @file   detection.h
-  @brief  Turbine detection
-  @author Thijs de Jong
-  @email  thijsdejong21@gmail.com
-  @date   15th of May, 2019
+  @file     detection.h
+  @project  Turbine detection
+  @author   Thijs de Jong
+  @email    thijsdejong21@gmail.com
+  @date     16th of May, 2019
 */
 
+//Prevent over definition, remove this and your compiler will crash/freeze :o
 #pragma once
+
+//Library heaaders
 #include <opencv2/core.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
@@ -15,24 +18,53 @@
 //#include <opencv2/xfeatures2d.hpp>
 #include <iostream>
 #include <stdio.h>
+#include <opencv2/opencv.hpp>
+
 
 #include <opencv2/opencv.hpp>
 //#include <opencv2/viz.hpp>
 #include <opencv2/calib3d.hpp>
 
 
+//Namespace decl.
+
 using namespace std; 
 using namespace cv;
 //using namespace cv::xfeatures2d; 
 
-//====== Turbine detection class ========
 
 
+/*
+  @Class: Detector
+
+  @functions (public):
+    Detector()
+        Initializes the sliders and its windows
+
+    void  swowVideo(Mat frame)
+        Debug function that displays the given "frame" in a window created within its scope
+
+    void  locate(Mat frame)
+        PnP Magic, WIP
+
+    void  detect(Mat frame)
+        Uses the video selector and the input frame to detect houghlines.
+        input:
+            frame: 
+                CV::Mat format 
+
+        outputs:
+            It spawns named windows.
+
+    void  detectKeys(bool video, Mat frame)
+
+*/
 
 class Detector 
-{ 
+{  
+    //=================== Initializer ===================
     public:
-    Detector() //Initializer
+    Detector()
     {
         bw2_Treshold    = 180;
         bw4_Rho         = 1;
@@ -51,12 +83,28 @@ class Detector
         createTrackbar( "bw4_Treshold",     "bw4: Hough lines", &bw4_Treshold,  255, NULL );
         createTrackbar( "bw4_srn",          "bw4: Hough lines", &bw4_srn,       60, NULL );
         createTrackbar( "bw4_stn",          "bw4: Hough lines", &bw4_stn,       30, NULL );
+
+        
+        window_capture_name = "Video Capture";
+        window_detection_name = "Object Detection";
+        low_H = 0, low_S = 0, low_V = 0;
+        high_H = max_value_H, high_S = max_value, high_V = max_value;
+
+        namedWindow(window_detection_name);
+        // Trackbars to set thresholds for HSV values
+        createTrackbar("Low H" , window_detection_name, &low_H , max_value_H, NULL);
+        createTrackbar("High H", window_detection_name, &high_H, max_value_H, NULL);
+        createTrackbar("Low S" , window_detection_name, &low_S , max_value  , NULL);
+        createTrackbar("High S", window_detection_name, &high_S, max_value  , NULL);
+        createTrackbar("Low V" , window_detection_name, &low_V , max_value  , NULL);
+        createTrackbar("High V", window_detection_name, &high_V, max_value  , NULL);
     };
 
-    private: //Private variables
+    //================ Private variables ================
+    private: 
     
-
     
+    //Used in detect()
     int  bw2_Treshold;    
     int  bw4_Rho     ;    
     int  bw4_Theta   ;   
@@ -64,50 +112,196 @@ class Detector
     int  bw4_srn     ; 
     int  bw4_stn     ;
 
-    private: //Private functions
+    //Used in locate()
+    static const int max_value_H = 360/2;
+    static const int max_value = 255;
+    String window_capture_name;
+    String window_detection_name;
+    int low_H, low_S, low_V;
+    int high_H, high_S , high_V;
+
+    //================ Private functions ===============
+    private: 
 
     
 
-    
-    public: //Public variables
+    //================ Public variables ================
+    public: 
   
-    
-    string name; //dummy var
+    //dummy var
+    string name; 
 
-    public: //Functions
+    //================ Public functions ================
+    public: 
 
     void printname() //dummy function
     { 
        cout << "Geekname is: " << name; 
     } 
 
-    void locate()
+    //[WIP - Unstable]
+    //PnP magic
+    void locate(Mat frame)
     {   
         //C++: bool solvePnP(InputArray objectPoints, InputArray imagePoints, InputArray cameraMatrix, 
         //          InputArray distCoeffs, OutputArray rvec, OutputArray tvec, bool useExtrinsicGuess=false, int flags=ITERATIVE )¶
         
+        // show live and wait for a key with timeout long enough to show images
+        imshow("Live", frame);
+
+        // -------- gray scaling ----------
+
         
-        //Object points: Cirlce prefered set of points
-        std::vector<Point2f> vec;
-        // points or a circle
-        for( int i = 0; i < 30; i++ )
-            vec.push_back(Point2f((float)(100 + 30*cos(i*CV_PI*2/5)),
-                                (float)(100 - 30*sin(i*CV_PI*2/5))));
 
-        //Image points
 
-        //camera Matrix
+      
 
-        //dist Coeffs
+        Mat frame_HSV; Mat frame_threshold;
+        // Convert from BGR to HSV colorspace
+        cvtColor(frame, frame_HSV, COLOR_BGR2HSV);
+        // Detect the object based on HSV Range Values
+        inRange(frame_HSV, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), frame_threshold);
+        
+        imshow("HSV",frame_HSV);
+        imshow(window_detection_name, frame_threshold);
 
-        //rvec
+        // -------- Blob detection ----------
 
-        //tvec
+        // Set up the detector with default parameters.
+        
+        
+        // Detect blobs.
+        std::vector<KeyPoint> keypoints;
+        
 
+        // Setup SimpleBlobDetector parameters.
+        SimpleBlobDetector::Params params;
+        
+        // Change thresholds
+        params.minThreshold = 0;
+        params.maxThreshold = 255;
+        
+        // Filter by Area.
+        params.filterByArea = false;
+        params.minArea = 1500;
+        
+        // Filter by Circularity
+        params.filterByCircularity = false;
+        params.minCircularity = 0.8;
+        
+        // Filter by Convexity
+        params.filterByConvexity = false;
+        params.minConvexity = 0.87;
+        
+        // Filter by Inertia
+        params.filterByInertia = false;
+        params.minInertiaRatio = 0.01;
+        
+        //Invert the image
+        Mat beforeBlob = frame_threshold < 200;
+
+        //Run the blob detector
+        cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params); 
+        detector->detect( beforeBlob, keypoints );
+
+        // Draw detected blobs as red circles.
+        // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures the size of the circle corresponds to the size of blob
+        Mat im_with_keypoints;
+        drawKeypoints( beforeBlob, keypoints, im_with_keypoints, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
+        
+        // Show blobs
+        imshow("keypoints", im_with_keypoints );
+
+        //Debug print
+        for( int i = 0 ; i < keypoints.size(); i++)
+        {
+            cout << "Blob " << i << " : " << keypoints[i].pt << "\t";
+
+        }
+        
+        cout << "\n\n";
+
+
+        //PnP magic ...
+        std::vector<cv::Point2d> image_points;
+
+        if(keypoints.size() == 5)
+        {
+            
+            // image_points.push_back( cv::Point2d(257, 394) );    
+            // image_points.push_back( cv::Point2d(371, 295) );    
+            // image_points.push_back( cv::Point2d(268, 288) );     
+            // image_points.push_back( cv::Point2d(165, 279) ); 
+            // image_points.push_back( cv::Point2d(278, 186) ); 
+
+            //Fill image_points using blob detection
+
+            image_points.push_back( cv::Point2d(keypoints[0].pt.x, keypoints[0].pt.y) );    // Nose tip
+            image_points.push_back( cv::Point2d(keypoints[1].pt.x, keypoints[1].pt.y) );    // Chin
+            image_points.push_back( cv::Point2d(keypoints[2].pt.x, keypoints[2].pt.y) );     // Left eye left corner
+            image_points.push_back( cv::Point2d(keypoints[3].pt.x, keypoints[3].pt.y) ); 
+            image_points.push_back( cv::Point2d(keypoints[4].pt.x, keypoints[4].pt.y) ); 
+        
+            // 3D model points.
+            std::vector<cv::Point3d> model_points;
+            model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center           
+            model_points.push_back(cv::Point3d(  25.0f,25.0f, 0.0f));  //right top         
+            model_points.push_back(cv::Point3d(-25.0f,-25.0f, 0.0f));  //left bottom    
+            model_points.push_back(cv::Point3d(-25.0f, 25.0f, 0.0f));  //left top
+            model_points.push_back(cv::Point3d( 25.0f,-25.0f, 0.0f));  //right bottom     
+            
+            
+            // Camera internals
+            double focal_length = frame.cols; // Approximate focal length.
+            Point2d center = cv::Point2d(frame.cols/2,frame.rows/2);
+            cv::Mat camera_matrix = (cv::Mat_<double>(3,3) << focal_length, 0, center.x, 0 , focal_length, center.y, 0, 0, 1);
+            cv::Mat dist_coeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type); // Assuming no lens distortion
+            
+            cout << "Camera Matrix " << endl << camera_matrix << endl ;
+            // Output rotation and translation
+            cv::Mat rotation_vector; // Rotation in axis-angle form
+            cv::Mat translation_vector;
+            
+            // Solve for pose
+            cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+        
+            
+            // Project a axis onto the image plane.
+            
+            
+            vector<Point3d> nose_end_point3D;
+            vector<Point2d> nose_end_point2D;
+            nose_end_point3D.push_back(Point3d(100,0,0));
+            nose_end_point3D.push_back(Point3d(0,100,0));
+            nose_end_point3D.push_back(Point3d(0,0,100));
+            
+            projectPoints(nose_end_point3D, rotation_vector, translation_vector, camera_matrix, dist_coeffs, nose_end_point2D);
+            
+            
+            for(int i=0; i < image_points.size(); i++)
+            {
+                circle(frame, image_points[i], 3, Scalar(0,0,255), -1);
+            }
+            
+            cv::line(frame,image_points[0], nose_end_point2D[0], cv::Scalar(255,0,0), 2);
+            cv::line(frame,image_points[0], nose_end_point2D[1], cv::Scalar(0,255,0), 2);
+            cv::line(frame,image_points[0], nose_end_point2D[2], cv::Scalar(0,0,255), 2);
+            
+            cout << "Rotation Vector " << endl << rotation_vector << endl;
+            cout << "Translation Vector" << endl << translation_vector << endl;
+            
+            cout <<  nose_end_point2D << endl;
+            
+            // Display image.
+        
+        }
+
+        cv::imshow("Output", frame);
 
     }
 
-    //Hello opencv, shows plain input
+    //[100% - Finished]
+    //Hello opencv, shows plain input 
     void showVideo(Mat frame)
     {
             
@@ -115,10 +309,28 @@ class Detector
 
     }
 
-    
+    //[30% - Unstable]
+    //Turbine detector using key points
+    void detectKeys(bool video, Mat frame)
+    {
 
-    //Turbine detector
-    void detect(bool video, Mat frame)
+        // show live and wait for a key with timeout long enough to show images
+        imshow("Live", frame);
+
+        // -------- gray scaling ----------
+
+        Mat BW1;
+        cvtColor(frame, BW1, CV_BGR2GRAY);
+        imshow("bw1 grey", BW1);
+
+        // -------- Masking ----------
+        Mat BW2 = BW1 > bw2_Treshold;
+
+    }
+
+    //[30% - Uncalibrated - incomplete]
+    //Turbine detector using houghlines
+    void detect(Mat frame)
     {
         // show live and wait for a key with timeout long enough to show images
         //imshow("Live", frame);
