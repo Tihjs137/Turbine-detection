@@ -248,11 +248,11 @@ class Detector
         
             // 3D model points.
             std::vector<cv::Point3d> model_points;
-            model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center           
-            model_points.push_back(cv::Point3d(  25.0f,25.0f, 0.0f));  //right top         
-            model_points.push_back(cv::Point3d(-25.0f,-25.0f, 0.0f));  //left bottom    
-            model_points.push_back(cv::Point3d(-25.0f, 25.0f, 0.0f));  //left top
-            model_points.push_back(cv::Point3d( 25.0f,-25.0f, 0.0f));  //right bottom     
+            model_points.push_back(cv::Point3d(    0.0f,   0.0f, 0.0f));  //Center           
+            model_points.push_back(cv::Point3d(    0.0f,-165.0f, 0.0f));  //right top         
+            model_points.push_back(cv::Point3d(   50.0f, -90.0f, 0.0f));  //left bottom    
+            model_points.push_back(cv::Point3d( -100.0f,   0.0f, 0.0f));  //left top
+            model_points.push_back(cv::Point3d(   50.0f,  90.0f, 0.0f));  //right bottom     
             
             
             // Camera internals
