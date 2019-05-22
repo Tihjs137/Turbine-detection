@@ -44,6 +44,8 @@ int main(int argc, char* argv[])
     if( argc == 1)
     {
         cout << "Error in syntax \nUsage: main source(path to image / video) (video source) \n";
+        printf("%s\r\n", CV_VERSION);
+        printf("%u.%u.%u\r\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_SUBMINOR_VERSION);
         return 0;
     }
     
@@ -123,10 +125,10 @@ int main(int argc, char* argv[])
         
 
         //Run the detector (detect houghlinees)
-        //d.detect(frame);
+        d.detect(frame);
         
         //Run the PnP function
-        d.locate(frame);
+        //d.locate(frame);
 
         //Run keypoint finder
         //d.detectKeys(video,frame);

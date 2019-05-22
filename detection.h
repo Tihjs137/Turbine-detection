@@ -63,11 +63,11 @@ class Detector
     Detector()
     {
         bw2_Treshold    = 180;
-        bw4_Rho         = 1;
-        bw4_Theta       = 180;
-        bw4_Treshold    = 80;
-        bw4_srn         = 30;
-        bw4_stn         = 10;
+        bw4_Rho         = 5;
+        bw4_Theta       = 180*10;
+        bw4_Treshold    = 120;
+        bw4_minLinLength       = 150;
+        bw4_maxLineGap         = 30;
 
         //create trackbars
         namedWindow(    "bw2 mask",1);
@@ -77,8 +77,8 @@ class Detector
         createTrackbar( "bw4_Rho",          "bw4: Hough lines", &bw4_Rho,       10, NULL );
         createTrackbar( "bw4_Theta",        "bw4: Hough lines", &bw4_Theta,     360, NULL );
         createTrackbar( "bw4_Treshold",     "bw4: Hough lines", &bw4_Treshold,  255, NULL );
-        createTrackbar( "bw4_srn",          "bw4: Hough lines", &bw4_srn,       60, NULL );
-        createTrackbar( "bw4_stn",          "bw4: Hough lines", &bw4_stn,       30, NULL );
+        createTrackbar( "bw4_minLinLength",          "bw4: Hough lines", &bw4_minLinLength,       200, NULL );
+        createTrackbar( "bw4_maxLineGap",          "bw4: Hough lines", &bw4_maxLineGap,       30, NULL );
 
         
         window_capture_name = "Video Capture";
@@ -108,8 +108,8 @@ class Detector
     int  bw4_Rho     ;    
     int  bw4_Theta   ;   
     int  bw4_Treshold;  
-    int  bw4_srn     ; 
-    int  bw4_stn     ;
+    int  bw4_minLinLength     ; 
+    int  bw4_maxLineGap     ;
 
     //Used in locate()
     static const int max_value_H = 360/2;
@@ -123,7 +123,35 @@ class Detector
     //================ Private functions ===============
     private: 
 
-    
+
+    struct isEqual //used in lines2point, determines which lines are colliding 
+    {
+        bool operator()(const Vec4i& _l1, const Vec4i& _l2) 
+        {
+            Vec4i l1(_l1), l2(_l2);
+
+            float length1 = sqrtf((l1[2] - l1[0])*(l1[2] - l1[0]) + (l1[3] - l1[1])*(l1[3] - l1[1]));
+            float length2 = sqrtf((l2[2] - l2[0])*(l2[2] - l2[0]) + (l2[3] - l2[1])*(l2[3] - l2[1]));
+
+            float product = (l1[2] - l1[0])*(l2[2] - l2[0]) + (l1[3] - l1[1])*(l2[3] - l2[1]);
+
+            if (fabs(product / (length1 * length2)) < cos(CV_PI / 30))
+                return false;
+
+            float mx1 = (l1[0] + l1[2]) * 0.5f;
+            float mx2 = (l2[0] + l2[2]) * 0.5f;
+
+            float my1 = (l1[1] + l1[3]) * 0.5f;
+            float my2 = (l2[1] + l2[3]) * 0.5f;
+            float dist = sqrtf((mx1 - mx2)*(mx1 - mx2) + (my1 - my2)*(my1 - my2));
+
+            if (dist > std::max(length1, length2) * 0.5f)
+                return false;
+
+            return true;
+        }
+    };
+        
 
     //================ Public variables ================
     public: 
@@ -240,19 +268,19 @@ class Detector
 
             //Fill image_points using blob detection
 
-            image_points.push_back( cv::Point2d(keypoints[0].pt.x, keypoints[0].pt.y) );    // Nose tip
-            image_points.push_back( cv::Point2d(keypoints[1].pt.x, keypoints[1].pt.y) );    // Chin
-            image_points.push_back( cv::Point2d(keypoints[2].pt.x, keypoints[2].pt.y) );     // Left eye left corner
+            image_points.push_back( cv::Point2d(keypoints[0].pt.x, keypoints[0].pt.y) );    
+            image_points.push_back( cv::Point2d(keypoints[1].pt.x, keypoints[1].pt.y) );    
+            image_points.push_back( cv::Point2d(keypoints[2].pt.x, keypoints[2].pt.y) );    
             image_points.push_back( cv::Point2d(keypoints[3].pt.x, keypoints[3].pt.y) ); 
             image_points.push_back( cv::Point2d(keypoints[4].pt.x, keypoints[4].pt.y) ); 
         
             // 3D model points.
             std::vector<cv::Point3d> model_points;
-            model_points.push_back(cv::Point3d(    0.0f,   0.0f, 0.0f));  //Center           
-            model_points.push_back(cv::Point3d(    0.0f,-165.0f, 0.0f));  //right top         
-            model_points.push_back(cv::Point3d(   50.0f, -90.0f, 0.0f));  //left bottom    
-            model_points.push_back(cv::Point3d( -100.0f,   0.0f, 0.0f));  //left top
-            model_points.push_back(cv::Point3d(   50.0f,  90.0f, 0.0f));  //right bottom     
+            model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center           
+            model_points.push_back(cv::Point3d(  25.0f,25.0f, 0.0f));  //right top         
+            model_points.push_back(cv::Point3d(-25.0f,-25.0f, 0.0f));  //left bottom    
+            model_points.push_back(cv::Point3d(-25.0f, 25.0f, 0.0f));  //left top
+            model_points.push_back(cv::Point3d( 25.0f,-25.0f, 0.0f));  //right bottom     
             
             
             // Camera internals
@@ -402,13 +430,80 @@ class Detector
 
         //cout << "iterations=" << iterations << endl;
         
-        imshow("bw3: skeleton", skel);
+        
 
+        //------- Dilate -------------//
+
+        Mat BW3_5;
+        dilate(skel,BW3_5,element);
+        imshow("bw3: skeleton", BW3_5);
         //-------Hough lines----------//
         //C++: void HoughLines(InputArray image, OutputArray lines, double rho, double theta, int threshold, double srn=0, double stn=0 )
 
         Mat BW4 = frame;
         vector<Vec4i> lines;
+        
+
+        HoughLinesP( BW3_5, lines, bw4_Rho, CV_PI/bw4_Theta, bw4_Treshold, bw4_minLinLength, bw4_maxLineGap );
+        /*
+        vector<Vec4i> lines;
+        HoughLinesP(dst, lines, 1, CV_PI/180, 50, 50, 10 );
+        with the arguments:
+
+        dst: Output of the edge detector. It should be a grayscale image (although in fact it is a binary one)
+        lines: A vector that will store the parameters (x_{start}, y_{start}, x_{end}, y_{end}) of the detected lines
+        rho : The resolution of the parameter r in pixels. We use 1 pixel.
+        theta: The resolution of the parameter \theta in radians. We use 1 degree (CV_PI/180)
+        threshold: The minimum number of intersections to “detect” a line
+        minLinLength: The minimum number of points that can form a line. Lines with less than this number of points are disregarded.
+        maxLineGap: The maximum gap between two points to be considered in the same line.
+        
+        */
+
+
+        cout << "BW4 \t Found hough lines: \n";
+        for( size_t i = 0; i < lines.size(); i++ )
+        {
+            line( BW4, Point(lines[i][0], lines[i][1]),
+                Point(lines[i][2], lines[i][3]), Scalar(0,0,255), 1, 8 );
+            
+            
+
+            
+            
+            float  slope = atan( (float)( (int)lines[i][3] - (int)lines[i][1]) / (float)((int)lines[i][2] - (int)lines[i][0]) ) * (180 / 3.1415);
+
+
+            cout << "BW4 \t Line: " << i << "\t P1_x, P1_y: (" << lines[i][0] << "," << lines[i][1] << ") \t P2_x, P2_y: ";
+            cout << lines[i][2] << "," << lines[i][3]  << "\t Slope: " << slope << "\n";
+        }
+
+        Rect boundingBox = lines2boundingbox(frame, lines);
+
+        //cout << "BW4 \t box: " << 1 << "\t Xmin, Xmax: (" << Xmin << "," << Xmax << ") \t Ymin,Ymax: (" << Ymin << "," << Ymax  << ")\n";
+        rectangle(BW4, boundingBox, Scalar( 0, 255, 255, 125 ));
+        imshow("bw4: Hough lines", BW4);
+        //Mat& img, Rect rec, const Scalar& color,
+
+        //Group overlaying lines together
+        vector<Vec4i> corelines = lines2points(lines);
+
+
+        Mat BW5 = frame;
+        //Mat BW5;
+        for(size_t i = 0; i < corelines.size(); i++ )
+        {
+            line( BW5, Point(corelines[i][0], corelines[i][1]),
+                Point(corelines[i][2], corelines[i][3]), Scalar(0,255,0), 2, 8 );
+        }
+
+        imshow("Simple lines", BW5);
+
+
+    }    
+
+    Rect lines2boundingbox(Mat frame, vector<Vec4i> lines)
+    {
         int Xmax = frame.size[0]/2;
         int Xmin = frame.size[0]/2;
         int Ymax = frame.size[1]/2;
@@ -416,14 +511,9 @@ class Detector
 
         Rect boundingBox;
 
-        HoughLinesP( skel, lines, bw4_Rho, CV_PI/bw4_Theta, bw4_Treshold, bw4_srn, bw4_stn );
-        cout << "BW4 \t Found hough lines: \n";
+
         for( size_t i = 0; i < lines.size(); i++ )
         {
-            line( BW4, Point(lines[i][0], lines[i][1]),
-                Point(lines[i][2], lines[i][3]), Scalar(0,0,255), 3, 8 );
-            
-            
 
             //Create bounding box
             if (Xmax < lines[i][0] || Xmax < lines[i][2] )
@@ -470,24 +560,120 @@ class Detector
                     Ymin = lines[i][3];
                 }
             }
-            
-            boundingBox.x       = Xmin;
-            boundingBox.y       = Ymin;
-            boundingBox.width   = Xmax - Xmin; 
-            boundingBox.height  = Ymax - Ymin;
-            
-            float  slope = atan( (float)( (int)lines[i][3] - (int)lines[i][1]) / (float)((int)lines[i][2] - (int)lines[i][0]) ) * (180 / 3.1415);
-
-
-            cout << "BW4 \t Line: " << i << "\t P1_x, P1_y: (" << lines[i][0] << "," << lines[i][1] << ") \t P2_x, P2_y: ";
-            cout << lines[i][2] << "," << lines[i][3]  << "\t Slope: " << slope << "\n";
         }
 
-        cout << "BW4 \t box: " << 1 << "\t Xmin, Xmax: (" << Xmin << "," << Xmax << ") \t Ymin,Ymax: (" << Ymin << "," << Ymax  << ")\n";
-        rectangle(BW4, boundingBox, Scalar( 0, 255, 255 ));
-        imshow("bw4: Hough lines", BW4);
-        //Mat& img, Rect rec, const Scalar& color,
+        boundingBox.x       = Xmin;
+        boundingBox.y       = Ymin;
+        boundingBox.width   = Xmax - Xmin; 
+        boundingBox.height  = Ymax - Ymin;
 
-    }    
+        return boundingBox;
+    }
 
-}; 
+    vector<Vec4i> lines2points( vector<Vec4i> lines )
+    {
+        
+        
+        //Catogorize lines based on angle :o 
+        std::vector<int> labels;
+        int numberOfLines = cv::partition(lines, labels, isEqual());
+
+        //Output container
+        vector<Vec4i> lines2;
+
+        //For all labels
+        for(int i = 0; i < numberOfLines; i++)
+        {
+            vector<int> x;
+            vector<int> y;
+            bool big_x,big_y;
+
+            //Check each line
+            for(size_t j = 0; j < lines.size(); j++)
+            {
+                //if line has the correct label
+                if(labels[j] == i )
+                {
+                    //Save values in the containers
+                    x.push_back( lines[i][0]);
+                    x.push_back( lines[i][2]);
+                    y.push_back( lines[i][1]);
+                    y.push_back( lines[i][3]);
+                }
+                
+                //Save whether x1 is bigger than x2. Could also be done with the slope
+                if(lines[i][0] < lines[i][2])
+                {
+                    big_x = 1;
+                }
+                else
+                {
+                    big_x = 0;
+                }
+
+                if(lines[i][1] < lines[i][3])
+                {
+                    big_y = 1;
+                }
+                else
+                {
+                    big_y = 0;
+                }
+
+
+                
+
+            }
+
+            //Determine the max and minima of the array
+            auto x_min_value = *std::min_element(x.begin(),x.end());
+            auto x_max_value = *std::max_element(x.begin(),x.end());
+            auto y_min_value = *std::min_element(y.begin(),y.end());
+            auto y_max_value = *std::max_element(y.begin(),y.end());
+            
+            //Create output containers
+            int x1,x2,y1,y2;
+
+            //Write maxima to the output containers according the arrangement determined before
+            if(big_x)
+            {
+                x1 = x_min_value;
+                x2 = x_max_value;
+            }
+            else
+            {
+                x2 = x_min_value;
+                x1 = x_max_value;
+            }
+            
+            if(big_y)
+            {
+                y1 = y_min_value;
+                y2 = y_max_value;
+            }
+            else
+            {
+                y2 = y_min_value;
+                y1 = y_max_value;
+            }
+
+            //Add the found line the 
+            lines2.push_back( Vec4i(x1, y1, x2 , y2 ) );
+
+            
+
+        }
+        
+
+       
+
+        //cv::partition()
+        //stoi("5");
+        
+        return lines2;
+    }
+
+
+    
+
+};
