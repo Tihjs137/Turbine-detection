@@ -171,7 +171,7 @@ class Detector
        cout << "Geekname is: " << name; 
     } 
 
-    //[WIP - Unstable]
+    //[WIP - translation stable, rotation is instable (flips positivity) ]
     //PnP magic
     void locate(Mat frame)
     {   
@@ -347,7 +347,7 @@ class Detector
 
     }
 
-    //[30% - Unstable]
+    //[30% - Obsolete - Unstable]
     //Turbine detector using key points
     void detectKeys(bool video, Mat frame)
     {
@@ -487,14 +487,73 @@ class Detector
 
         //Group overlaying lines together
         vector<Vec4i> corelines = lines2points(lines);
+        
+
+
+        //----- Fabriacte points for the locate alg. -----------//
+
+        Size s = frame.size();
+        // rows = s.height;
+        // cols = s.width;
+        vector<Point2d> output;
+        vector<Point2d> centerpoints;
+
 
 
         Mat BW5 = frame;
+        //circle(Mat& img, Point center, int radius, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
+
         //Mat BW5;
         for(size_t i = 0; i < corelines.size(); i++ )
         {
+            if( ( corelines[i][0] < (s.width/2 - s.width/4) || corelines[i][0] > (s.width/2 + s.width/4) )
+                ||
+                ( corelines[i][1] < (s.height/2 - s.height/4) || corelines[i][1] > (s.height/2 + s.height/4) )  )
+            {
+                //circle(BW5,Point2d(corelines[i][0], corelines[i][1]), 5, Scalar(0,0,255),2); //red
+                output.push_back(Point2d(corelines[i][0], corelines[i][1]));
+            }
+            else
+            {
+                //circle(BW5,Point2d(corelines[i][0], corelines[i][1]), 5, Scalar(255,255,0),2); //blue
+                centerpoints.push_back(Point2d(corelines[i][0], corelines[i][1]));
+            }
+
+            if( ( corelines[i][2] < (s.width/2 - s.width/4) || corelines[i][2] > (s.width/2 + s.width/4) )
+                || 
+                (corelines[i][3] < (s.height/2 - s.height/4) || corelines[i][3] > (s.height/2 + s.height/4)))
+            {
+                //circle(BW5,Point2d(corelines[i][2], corelines[i][3]), 6, Scalar(0,0,255),2);
+                output.push_back(Point2d(corelines[i][2], corelines[i][3]));
+            }
+            else
+            {
+                //circle(BW5,Point2d(corelines[i][2], corelines[i][3]), 6, Scalar(255,255,0),2);
+                centerpoints.push_back(Point2d(corelines[i][2], corelines[i][3]));
+            }
+            
+            
+
+
             line( BW5, Point(corelines[i][0], corelines[i][1]),
                 Point(corelines[i][2], corelines[i][3]), Scalar(0,255,0), 2, 8 );
+        }
+
+        //resolve middle point of the wind turbine
+        int x_acc = 0;
+        int y_acc = 0;
+        for(size_t i = 0; i < centerpoints.size(); i++ )
+        {
+            x_acc += centerpoints[i].x;
+            y_acc += centerpoints[i].y;
+        }
+
+        output.push_back(Point2d(x_acc / centerpoints.size(), y_acc / centerpoints.size()));
+
+        //debug print
+        for(size_t i = 0; i < output.size(); i++ )
+        {
+            circle(BW5,Point2d(output[i].x, output[i].y), 6, Scalar(255,0,0),2);
         }
 
         imshow("Simple lines", BW5);
@@ -502,6 +561,8 @@ class Detector
 
     }    
 
+    //[100% - Finished]
+    //creates a rectangle around the given vectors
     Rect lines2boundingbox(Mat frame, vector<Vec4i> lines)
     {
         int Xmax = frame.size[0]/2;
@@ -570,6 +631,8 @@ class Detector
         return boundingBox;
     }
 
+    //[100% - Finished]
+    //Groups lines based on size and angle
     vector<Vec4i> lines2points( vector<Vec4i> lines )
     {
         
