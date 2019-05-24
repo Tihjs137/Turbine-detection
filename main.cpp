@@ -125,9 +125,18 @@ int main(int argc, char* argv[])
         
 
         //Run the detector (detect houghlinees)
-        d.detect(frame);
         
-        //Run the PnP function
+        vector<Point2d> turbinePoints;
+        turbinePoints = d.detect(frame);
+        
+        //Run the intigrated PnP function
+        if(!turbinePoints.size() < 3)
+        {
+            d.locate(frame, turbinePoints);
+        }
+        
+
+        //Run the debug PnP function
         //d.locate(frame);
 
         //Run keypoint finder

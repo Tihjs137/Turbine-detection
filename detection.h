@@ -171,6 +171,78 @@ class Detector
        cout << "Geekname is: " << name; 
     } 
 
+
+    void locate(Mat frame, vector<Point2d> image_points)
+    {
+        // image_points.push_back( cv::Point2d(257, 394) );    
+        // image_points.push_back( cv::Point2d(371, 295) );    
+        // image_points.push_back( cv::Point2d(268, 288) );     
+        // image_points.push_back( cv::Point2d(165, 279) ); 
+        // image_points.push_back( cv::Point2d(278, 186) ); 
+
+        //Fill image_points using blob detection
+
+        // image_points.push_back( cv::Point2d(keypoints[0].pt.x, keypoints[0].pt.y) );    
+        // image_points.push_back( cv::Point2d(keypoints[1].pt.x, keypoints[1].pt.y) );    
+        // image_points.push_back( cv::Point2d(keypoints[2].pt.x, keypoints[2].pt.y) );    
+        // image_points.push_back( cv::Point2d(keypoints[3].pt.x, keypoints[3].pt.y) ); 
+        // image_points.push_back( cv::Point2d(keypoints[4].pt.x, keypoints[4].pt.y) ); 
+    
+        // 3D model points.
+        std::vector<cv::Point3d> model_points;
+        model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center           
+        model_points.push_back(cv::Point3d(  25.0f,25.0f, 0.0f));  //right top         
+        model_points.push_back(cv::Point3d(-25.0f,-25.0f, 0.0f));  //left bottom    
+        model_points.push_back(cv::Point3d(-25.0f, 25.0f, 0.0f));  //left top
+        model_points.push_back(cv::Point3d( 25.0f,-25.0f, 0.0f));  //right bottom     
+        
+        
+        // Camera internals
+        double focal_length = frame.cols; // Approximate focal length.
+        Point2d center = cv::Point2d(frame.cols/2,frame.rows/2);
+        cv::Mat camera_matrix = (cv::Mat_<double>(3,3) << focal_length, 0, center.x, 0 , focal_length, center.y, 0, 0, 1);
+        cv::Mat dist_coeffs = cv::Mat::zeros(4,1,cv::DataType<double>::type); // Assuming no lens distortion
+        
+        cout << "Camera Matrix " << endl << camera_matrix << endl ;
+        
+        
+        // Solve for pose
+        cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+    
+        
+        // Project a axis onto the image plane.
+        
+        
+        vector<Point3d> nose_end_point3D;
+        vector<Point2d> nose_end_point2D;
+        nose_end_point3D.push_back(Point3d(100,0,0));
+        nose_end_point3D.push_back(Point3d(0,100,0));
+        nose_end_point3D.push_back(Point3d(0,0,100));
+        
+        projectPoints(nose_end_point3D, rotation_vector, translation_vector, camera_matrix, dist_coeffs, nose_end_point2D);
+        
+        
+        for(int i=0; i < image_points.size(); i++)
+        {
+            circle(frame, image_points[i], 3, Scalar(0,0,255), -1);
+        }
+        
+        cv::line(frame,image_points[0], nose_end_point2D[0], cv::Scalar(255,0,0), 2);
+        cv::line(frame,image_points[0], nose_end_point2D[1], cv::Scalar(0,255,0), 2);
+        cv::line(frame,image_points[0], nose_end_point2D[2], cv::Scalar(0,0,255), 2);
+        
+        // int str = (rotation_vector.at<float>(0));
+        // stringstream iss;
+        // iss << str;
+        // putText(frame, iss.str(), Point2d(10,20), 1, 2, Scalar(255,0,0), 2);
+        cout << "Rotation Vector " << endl << rotation_vector << endl;
+        cout << "Translation Vector" << endl << translation_vector << endl;
+        
+        cout <<  nose_end_point2D << endl;
+
+        imshow("PNP - output", frame);
+    }
+
     //[WIP - translation stable, rotation is instable (flips positivity) ]
     //PnP magic
     void locate(Mat frame)
@@ -388,7 +460,7 @@ class Detector
 
     //[30% - Uncalibrated - incomplete]
     //Turbine detector using houghlines
-    void detect(Mat frame)
+    vector<Point2d> detect(Mat frame)
     {
         // show live and wait for a key with timeout long enough to show images
         imshow("Live", frame);
@@ -548,8 +620,12 @@ class Detector
             y_acc += centerpoints[i].y;
         }
 
-        output.push_back(Point2d(x_acc / centerpoints.size(), y_acc / centerpoints.size()));
+        if(centerpoints.size() != 0)
+        {
+            output.push_back(Point2d(x_acc / centerpoints.size(), y_acc / centerpoints.size()));
 
+        }
+        
         //debug print
         for(size_t i = 0; i < output.size(); i++ )
         {
@@ -557,7 +633,7 @@ class Detector
         }
 
         imshow("Simple lines", BW5);
-
+        return output;
 
     }    
 
