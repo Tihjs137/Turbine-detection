@@ -171,7 +171,8 @@ class Detector
        cout << "Geekname is: " << name; 
     } 
 
-
+    //[WIP - full of bugs ]
+    //PnP magic
     void locate(Mat frame, vector<Point2d> image_points)
     {
         // image_points.push_back( cv::Point2d(257, 394) );    
@@ -243,7 +244,7 @@ class Detector
         imshow("PNP - output", frame);
     }
 
-    //[WIP - translation stable, rotation is instable (flips positivity) ]
+    //[80% translation stable, rotation is instable (flips positivity) ]
     //PnP magic
     void locate(Mat frame)
     {   

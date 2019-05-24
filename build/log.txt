@@ -1,0 +1,12 @@
+Error in syntax 
+Usage: main source(path to image / video) (video source) 
+3.3.1-dev
+3.3.1
+Using video capture
+Start grabbing
+Press any key to terminate
+BW4 	 Found hough lines: 
+Camera Matrix 
+[640, 0, 320;
+ 0, 640, 240;
+ 0, 0, 1]
