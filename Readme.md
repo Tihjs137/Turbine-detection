@@ -15,7 +15,12 @@ __Code breakdown / explanation__
 
 
 ## The code
+The code consists of 1 source file and one class (main.cpp and the detector class), with the most important functions being __Detect__ and __Locate__.
 
+
+### Workflow
+
+![Flowchart](https://raw.githubusercontent.com/Tihjs137/Turbine-detection/master/Resources/Turbine%20detection.jpg)
 
 <!-- 
 
