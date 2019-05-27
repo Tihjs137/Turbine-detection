@@ -130,9 +130,9 @@ int main(int argc, char* argv[])
         turbinePoints = d.detect(frame);
         
         //Run the intigrated PnP function
-        if(turbinePoints.size() > 3)
+        if(turbinePoints.size() == 4)
         {
-            d.locate(frame, turbinePoints);
+            //d.locate(frame, turbinePoints);
         }
         
 

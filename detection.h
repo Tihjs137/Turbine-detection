@@ -62,7 +62,10 @@ class Detector
     public:
     Detector()
     {
+        //Background removal
         bw2_Treshold    = 180;
+        
+        //Hough line finder
         bw4_Rho         = 5;
         bw4_Theta       = 180*10;
         bw4_Treshold    = 120;
@@ -80,9 +83,11 @@ class Detector
         createTrackbar( "bw4_minLinLength",          "bw4: Hough lines", &bw4_minLinLength,       200, NULL );
         createTrackbar( "bw4_maxLineGap",          "bw4: Hough lines", &bw4_maxLineGap,       30, NULL );
 
-        
+        //created named windows, for the trackbars
         window_capture_name = "Video Capture";
         window_detection_name = "Object Detection";
+
+        //Set HSV values for trackbar
         low_H = 107, low_S = 54, low_V = 105;
         high_H = 154, high_S = 133, high_V = 147;
 
@@ -175,13 +180,20 @@ class Detector
     //PnP magic
     void locate(Mat frame, vector<Point2d> image_points)
     {
+        /*
+        @brief : This funtion calculates the rotation and translation based on points 
+        @reference : https://www.learnopencv.com/head-pose-estimation-using-opencv-and-dlib/
+
+        */
+
+
         // image_points.push_back( cv::Point2d(257, 394) );    
         // image_points.push_back( cv::Point2d(371, 295) );    
         // image_points.push_back( cv::Point2d(268, 288) );     
         // image_points.push_back( cv::Point2d(165, 279) ); 
         // image_points.push_back( cv::Point2d(278, 186) ); 
 
-        //Fill image_points using blob detection
+        // Fill image_points using blob detection
 
         // image_points.push_back( cv::Point2d(keypoints[0].pt.x, keypoints[0].pt.y) );    
         // image_points.push_back( cv::Point2d(keypoints[1].pt.x, keypoints[1].pt.y) );    
@@ -208,7 +220,7 @@ class Detector
         
         
         // Solve for pose
-        cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector);
+        cv::solvePnP(model_points, image_points, camera_matrix, dist_coeffs, rotation_vector, translation_vector, false); //disable iterative calc
     
         
         // Project a axis onto the image plane.
