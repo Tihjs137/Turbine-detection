@@ -9,21 +9,19 @@
 
 
 //Library headers
-#include <opencv2/core.hpp>
-#include <opencv2/videoio.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <iostream>
-#include <stdio.h>
+// #include <opencv2/core.hpp>
+// #include <opencv2/videoio.hpp>
+// #include <opencv2/highgui.hpp>
+// #include <opencv2/imgproc/imgproc.hpp>
+// #include <iostream>
+// #include <stdio.h>
 
 //Class headers
-#include "detection.h"
+#include "detection.hpp"
 
 //Namespace decl.
 using namespace std; 
 using namespace cv; 
-
-
 
 
 int main(int argc, char* argv[])
@@ -72,7 +70,7 @@ int main(int argc, char* argv[])
         cap.open(deviceID + apiID);
 
         // check if we succeeded
-        if (!cap.isOpened()) 
+        if (!cap.isOpened())  
         {
             cerr << "ERROR! Unable to open camera\n";
             return -1;

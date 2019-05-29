@@ -123,6 +123,33 @@ main/fast:
 	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
 .PHONY : main/fast
 
+detection.o: detection.cpp.o
+
+.PHONY : detection.o
+
+# target to build an object file
+detection.cpp.o:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/detection.cpp.o
+.PHONY : detection.cpp.o
+
+detection.i: detection.cpp.i
+
+.PHONY : detection.i
+
+# target to preprocess a source file
+detection.cpp.i:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/detection.cpp.i
+.PHONY : detection.cpp.i
+
+detection.s: detection.cpp.s
+
+.PHONY : detection.s
+
+# target to generate assembly for a file
+detection.cpp.s:
+	$(MAKE) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/detection.cpp.s
+.PHONY : detection.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -159,6 +186,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... main"
+	@echo "... detection.o"
+	@echo "... detection.i"
+	@echo "... detection.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
