@@ -552,3 +552,25 @@ make[1]: Leaving directory '/home/thijs/Documents/Minor/Project/cmake/houghlines
     Feature record: CXX_FEATURE:0cxx_variable_templates
     Feature record: CXX_FEATURE:0cxx_variadic_macros
     Feature record: CXX_FEATURE:0cxx_variadic_templates
+Determining if the Q_WS_X11 exist passed with the following output:
+Change Dir: /home/thijs/Documents/Minor/Project/cmake/houghlines/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/ninja" "cmTC_2147d"
+[1/2] Building CXX object CMakeFiles/cmTC_2147d.dir/CheckSymbolExists.cxx.o
+[2/2] Linking CXX executable cmTC_2147d
+
+File /home/thijs/Documents/Minor/Project/cmake/houghlines/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_X11
+  return ((int*)(&Q_WS_X11))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

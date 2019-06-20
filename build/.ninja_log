@@ -52,3 +52,15 @@
 2643	3176	0	main	6aaf1e5d859ff892
 1	2538	0	CMakeFiles/main.dir/detection.cpp.o	e4b3896947cf0937
 2538	3031	0	main	6aaf1e5d859ff892
+0	85	0	build.ninja	e51374e7f1509dbf
+0	22	0	CMakeFiles/main_automoc	63bb88a1ea342423
+25	33	0	main_automoc.cpp	87c2bc0beaf1d91d
+33	79	0	CMakeFiles/main.dir/main_automoc.cpp.o	49fb8adc0f2df4d0
+22	2182	0	CMakeFiles/main.dir/main.cpp.o	a13e23ec8aa56168
+22	2381	0	CMakeFiles/main.dir/detection.cpp.o	3aed221bbd96f8bc
+2381	2953	0	main	7ebdea98c3561f71
+0	28	0	CMakeFiles/main_automoc	63bb88a1ea342423
+0	29	0	CMakeFiles/main_automoc	63bb88a1ea342423
+0	39	0	CMakeFiles/main_automoc	63bb88a1ea342423
+40	2337	0	CMakeFiles/main.dir/main.cpp.o	a13e23ec8aa56168
+2337	2825	0	main	7ebdea98c3561f71
