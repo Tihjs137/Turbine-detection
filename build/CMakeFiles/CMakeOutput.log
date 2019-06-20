@@ -574,3 +574,25 @@ int main(int argc, char** argv)
 #endif
 }
 
+Determining if the Q_WS_X11 exist passed with the following output:
+Change Dir: /home/thijs/Documents/Minor/Project/cmake/houghlines/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/ninja" "cmTC_7593d"
+[1/2] Building CXX object CMakeFiles/cmTC_7593d.dir/CheckSymbolExists.cxx.o
+[2/2] Linking CXX executable cmTC_7593d
+
+File /home/thijs/Documents/Minor/Project/cmake/houghlines/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_X11
+  return ((int*)(&Q_WS_X11))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

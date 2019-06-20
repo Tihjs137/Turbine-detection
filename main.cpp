@@ -16,11 +16,14 @@
 // #include <iostream>
 // #include <stdio.h>
 
+<<<<<<< HEAD
 #include <pthread.h>
 
 
 
 
+=======
+>>>>>>> parent of a99ca41... Added button to dolocate(). slider now work w/ img
 //Class headers
 #include "detection.hpp"
 
@@ -28,36 +31,6 @@
 using namespace std; 
 using namespace cv; 
 
-typedef struct custom_data
-{
-    int state;
-    pthread_mutex_t mtx;
-} 
-
-custom_data_t;
-
-
-void callbackButton(int state, void* userdata)
-{
-     std::cout << "@my_button_cb" << std::endl;   
-
-    // convert userdata to the right type
-    custom_data_t* ptr = (custom_data_t*)userdata;
-    if (!ptr)
-    {
-        std::cout << "@my_button_cb userdata is empty" << std::endl;
-        return;
-    }
-
-    // lock mutex to protect data from being modified by the
-    // main() thread
-    pthread_mutex_lock(&ptr->mtx);
-
-    ptr->state = state;
-
-    // unlock mutex
-    pthread_mutex_unlock(&ptr->mtx);
-}
 
 int main(int argc, char* argv[])
 {
@@ -134,10 +107,9 @@ int main(int argc, char* argv[])
     cout << "Start grabbing" << endl
         << "Press any key to terminate" << endl;
     
-    custom_data_t buttonstate = { 0 };
-    createButton("Enable PNP solver",callbackButton,&buttonstate, CV_CHECKBOX,0);
+   
     
-    
+    /* Rotation using rodrigues */
     
 
     // ======= Main Vision Loop =======
@@ -156,12 +128,6 @@ int main(int argc, char* argv[])
                 break;
             }
         }
-        else
-        {
-            frame = imread(argv[1], CV_LOAD_IMAGE_COLOR);
-        }
-        
-        
         
 
         //Run the detector (detect houghlinees)
@@ -169,19 +135,11 @@ int main(int argc, char* argv[])
         vector<Point2d> turbinePoints;
         turbinePoints = d.detect(frame);
         
-
-        pthread_mutex_lock(&buttonstate.mtx);
-
-        int state = buttonstate.state;
-
         //Run the intigrated PnP function
-        if(turbinePoints.size() == 5 && state)
+        if(turbinePoints.size() == 4)
         {
-            
-            d.locate(frame, turbinePoints);
+            //d.locate(frame, turbinePoints);
         }
-        
-        pthread_mutex_unlock(&buttonstate.mtx);
         
 
         //Run the debug PnP function
@@ -197,13 +155,13 @@ int main(int argc, char* argv[])
         //-------Wait key -----------
         if(!video)
         {
-            // for(;;)
-            // {
-            //     if (waitKey(5) >= 0)
-            //         return 0;
+            for(;;)
+            {
+                if (waitKey(5) >= 0)
+                    return 0;
 
 
-            // }
+            }
 
         }
 

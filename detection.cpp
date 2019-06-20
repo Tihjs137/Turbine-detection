@@ -23,7 +23,7 @@ Detector::Detector()
         //Hough line finder
         bw4_Rho         = 5;
         bw4_Theta       = 180*10;
-        bw4_Treshold    = 75;
+        bw4_Treshold    = 120;
         bw4_minLinLength       = 150;
         bw4_maxLineGap         = 30;
 
@@ -43,8 +43,8 @@ Detector::Detector()
         window_detection_name = "Object Detection";
 
         //Set HSV values for trackbar
-        low_H = 0, low_S = 0, low_V = 58;
-        high_H = 90, high_S = 67, high_V = 255;
+        low_H = 107, low_S = 54, low_V = 105;
+        high_H = 154, high_S = 133, high_V = 147;
 
         namedWindow(window_detection_name);
         // Trackbars to set thresholds for HSV values
@@ -148,7 +148,7 @@ void Detector::locate(Mat frame)
     //          InputArray distCoeffs, OutputArray rvec, OutputArray tvec, bool useExtrinsicGuess=false, int flags=ITERATIVE )¶
     
     // show live and wait for a key with timeout long enough to show images
-    //imshow("Live", frame);
+    imshow("Live", frame);
 
     // -------- gray scaling ----------
 
@@ -245,12 +245,12 @@ void Detector::locate(Mat frame)
     
         // 3D model points.
         std::vector<cv::Point3d> model_points;
-                 
+        model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center           
         model_points.push_back(cv::Point3d(  25.0f,25.0f, 0.0f));  //right top         
         model_points.push_back(cv::Point3d(-25.0f,-25.0f, 0.0f));  //left bottom    
         model_points.push_back(cv::Point3d(-25.0f, 25.0f, 0.0f));  //left top
-        model_points.push_back(cv::Point3d( 0.0f,-25.0f, 0.0f));  //bottom     
-        model_points.push_back(cv::Point3d(  0.0f,  0.0f, 0.0f));  //Center  
+        model_points.push_back(cv::Point3d( 25.0f,-25.0f, 0.0f));  //right bottom     
+        
         
         // Camera internals
         double focal_length = frame.cols; // Approximate focal length.
@@ -350,36 +350,19 @@ vector<Point2d> Detector::detect(Mat frame)
     // show live and wait for a key with timeout long enough to show images
     imshow("Live", frame);
 
-    
-
     // -------- gray scaling ----------
 
     Mat BW1;
-
-    cvtColor(frame, BW1, COLOR_BGR2HSV);
-    
-    Mat frame_threshold;
-
-    // ------------  HSV --------------
-        
-    inRange(BW1, Scalar(low_H, low_S, low_V), Scalar(high_H, high_S, high_V), frame_threshold);
-    
-    imshow("HSV",BW1);
-    imshow(window_detection_name, frame_threshold);
-
-    //
-
-
-
-    
+    cvtColor(frame, BW1, CV_BGR2GRAY);
+    imshow("bw1 grey", BW1);
 
     // -------- Masking ----------
-    //Mat BW2 = BW1 > bw2_Treshold;
-    Mat BW2 = frame_threshold;
+    Mat BW2 = BW1 > bw2_Treshold;
 
-    //imshow("bw2 mask", BW2);
+    imshow("bw2 mask", BW2);
 
 
+    //TODO: add HSV filter
 
     // -------- Skeleton ----------
 
@@ -391,11 +374,6 @@ vector<Point2d> Detector::detect(Mat frame)
     bool done;
     int iterations=0;
 
-    // vector<Point2d> r;
-    // return r;
-    
-
-    //FIXME: bug somewhere around here
     do
     {
     erode(BW3, eroded, element);
@@ -410,7 +388,8 @@ vector<Point2d> Detector::detect(Mat frame)
     } while (!done && (iterations < 100));
 
     //cout << "iterations=" << iterations << endl;
-  
+    
+    
 
     //------- Dilate -------------//
 
