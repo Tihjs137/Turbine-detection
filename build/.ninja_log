@@ -1,6 +1,0 @@
-# ninja log v5
-0	21	0	CMakeFiles/main_automoc	63bb88a1ea342423
-22	42	0	main_automoc.cpp	87c2bc0beaf1d91d
-42	83	0	CMakeFiles/main.dir/main_automoc.cpp.o	49fb8adc0f2df4d0
-22	2635	0	CMakeFiles/main.dir/detection.cpp.o	3aed221bbd96f8bc
-1	2565	0	CMakeFiles/main.dir/detection.cpp.o	e4b3896947cf0937

@@ -17,11 +17,14 @@
 // #include <stdio.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <pthread.h>
 
 
 
 
+=======
+>>>>>>> parent of a99ca41... Added button to dolocate(). slider now work w/ img
 =======
 >>>>>>> parent of a99ca41... Added button to dolocate(). slider now work w/ img
 //Class headers
